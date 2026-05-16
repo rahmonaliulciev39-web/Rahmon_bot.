@@ -130,9 +130,9 @@ if ($msg && ($u['message']['from']['id'] ?? $u['callback_query']['from']['id']) 
         req("sendMessage", ['chat_id' => $cid, 'text' => "🔄 Режим авто-торговли изменен!", 'reply_markup' => json_encode($kb)]);
     }
 
-    if ($txt == "🔍 ПОИСК СПРЕДОВ 🚀") {
+        if ($txt == "🔍 ПОИСК СПРЕДОВ 🚀") {
         if (empty($mp) || empty($bp)) {
-            req("sendMessage", ['chat_id' => $cid, 'text' => "⚠️ Ошибка получения данных. Попробуйте еще раз."]);
+            req("sendMessage", ['chat_id' => $cid, 'text' => "⚠️ Ошибка связи с биржами. Массивы цен пустые!"]);
             exit;
         }
 
@@ -140,9 +140,9 @@ if ($msg && ($u['message']['from']['id'] ?? $u['callback_query']['from']['id']) 
         foreach ($mp as $s => $p1) {
             if (isset($bp[$s]) && $p1 > 0 && $bp[$s] > 0) {
                 $p2 = $bp[$s]; 
-                $spr = (abs($p1 - $p2) / min($p1, $p2) * 100) - 0.24; 
+                $spr = (abs($p1 - $p2) / min($p1, $p2) * 100); 
                 
-                if ($spr >= 0.10 && $spr < 25) { 
+                if ($spr > 0.01 && $spr < 50) { 
                     $f[] = ['s' => $s, 'm' => $p1, 'b' => $p2, 'p' => round($spr, 2)];
                 }
             }
@@ -151,19 +151,20 @@ if ($msg && ($u['message']['from']['id'] ?? $u['callback_query']['from']['id']) 
         
         $top = array_slice($f, 0, 5);
         if (empty($top)) {
-            req("sendMessage", ['chat_id' => $cid, 'text' => "⏸ Суточных чистых спредов прямо сейчас не обнаружено. Рынок стабилен."]);
+            req("sendMessage", ['chat_id' => $cid, 'text' => "⏸ Даже тестовых микро-спредов не найдено. Проблема в блокировке IP."]);
         } else {
             foreach ($top as $i) {
-                $m = "💎 **Пара: {$i['s']}**\n🔥 Чистый спред: `{$i['p']}%` (Комиссия учтена)\n\n🟢 Цена MEXC: `{$i['m']}`\n🔵 Цена BingX: `{$i['b']}`";
+                $m = "💎 **Пара: {$i['s']}**\n🔥 Тестовый спред: `{$i['p']}%` \n\n🟢 Цена MEXC: `{$i['m']}`\n🔵 Цена BingX: `{$i['b']}`";
                 $chart_url = "https://www.tradingview.com/chart/?symbol=MEXC:{$i['s']}USDT&theme=dark"; 
                 $ik = ['inline_keyboard' => [
-                    [['text' => '📊 ГРАФИК ЛИНИИ (Dark)', 'url' => $chart_url]],
-                    [['text' => '⚡️ ОТКРЫТЬ СДЕЛКУ (L/S)', 'callback_data' => "open_{$i['s']}_{$i['m']}_{$i['b']}"]]
+                    [['text' => '📊 ГРАФИК ЛИНИИ', 'url' => $chart_url]],
+                    [['text' => '⚡️ ОТКРЫТЬ СДЕЛКУ', 'callback_data' => "open_{$i['s']}_{$i['m']}_{$i['b']}"]]
                 ]];
                 req("sendMessage", ['chat_id' => $cid, 'text' => $m, 'reply_markup' => json_encode($ik), 'parse_mode' => 'Markdown']);
             }
         }
     }
+
 
     if ($txt == "⚙️ НАСТРОЙКИ 🛠") {
         $sk = ['inline_keyboard' => [
