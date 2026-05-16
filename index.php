@@ -23,13 +23,15 @@ function req($m, $p) {
     $r = curl_exec($ch); curl_close($ch); return json_decode($r, true);
 }
 
-// Защищенный запрос к биржам с маскировкой под мобильный браузер
-function fetch($link) {
-    $ch = curl_init();
+// Защищенный запрос к биржам с маскировкой под мобильный браузерfunction fetch($link) {
+ function fetch($link) {  
+$ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $link);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1');
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Отключаем блокировку SSL хостинга
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Пробиваем защиту Cloudflare
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     $res = curl_exec($ch);
     curl_close($ch);
     return $res;
